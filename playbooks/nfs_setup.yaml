@@ -1,0 +1,22 @@
+---
+  - name: Configurar NFS
+    become: yes
+
+    tasks:
+      - name: Instalar servidor NFS
+        ansible.builtin.dnf:
+          name: nfs-utils
+          state: present
+
+      - name: Iniciar y habilitar servicios
+        ansible.builtin.service:
+          name: nfs-server
+          state: started
+          enabled: true
+
+      - name: Habilitar firewall para servicios
+        ansible.posix.firewalld:
+          port: tcp/2049
+          permanent: true
+          state: enabled
+          inmediate: true
