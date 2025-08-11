@@ -1,5 +1,6 @@
 ---
   - name: Configurar NFS
+    hosts: Centos
     become: yes
 
     tasks:
@@ -20,3 +21,24 @@
           permanent: true
           state: enabled
           inmediate: true
+
+      - name: Crear directorio
+        ansible.builtin.file:
+          path: /var/nfs_shared
+          state: directory
+          owner: nobody
+          group: nobody
+          mode: '0777'
+
+      - name: Compartir directorio en /etc/exports
+        ansible.builtin.lineinfile:
+          path: /etc/exports
+          line: "/var/nfs_shared *(rw,sync,no_root_squash)"
+          state: present
+          create: yes
+
+    handlers:
+      - name: Recargar NFS
+        listen: "reload nfs"
+        become: yes
+        command: exportfs -ra    
