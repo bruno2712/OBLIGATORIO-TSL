@@ -20,7 +20,6 @@
           port: 2049/tcp
           permanent: true
           state: enabled
-          inmediate: true
 
       - name: Crear directorio
         ansible.builtin.file:
