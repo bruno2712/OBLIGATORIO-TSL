@@ -1,0 +1,75 @@
+---
+- name: Hardenizar servidor Ubuntu
+  hosts: Ubuntu
+  become: yes
+
+  tasks:
+    - name: Actualizar sistema Ubuntu
+      ansible.builtin.apt:
+        name: "*"
+        state: lastest
+        update_cache: true
+      notify: reboot server
+
+    - name: Instalar UFW y Fail2ban
+      ansible.builtin.package:
+        name:
+          - ufw
+          - fail2ban
+        state: present
+
+    - name: Bloquear todo por UFW 
+      community.general.ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+
+    - name: Permitir conexiones SSH por UFW
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Activar protección SSH en Fail2ban
+      ansible.builtin.copy:
+        dest: /etc/fail2ban/jail.local
+        content: |
+          [DEFAULT]
+          # Se puede añadir una IP a la lista blanca para evitar bloqueos accidentales
+          ignoreip = 192.168.2.1
+
+          [sshd]
+          enabled = true
+          # Opcional: ajustar el tiempo de baneo y los intentos
+          # bantime = 1h
+          # maxretry = 5
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Reiniciar servicio Fail2ban
+
+    - name: Asegurar que Fail2ban esté iniciado y habilitado
+      ansible.builtin.service:
+        name: fail2ban
+        state: started
+        enabled: yes
+
+  handlers:
+  
+    - name: Reiniciar servicio Fail2ban
+      listen: "Reiniciar servicio Fail2ban"
+      become: yes
+      ansible.builtin.service:
+        name: fail2ban
+        state: restarted
+
+    - name: reboot server
+      listen: "Reiniciar sistema por actualizaciones"
+      when: apt_result.changed
+      become: yes
+      ansible.builtin.reboot:
+        msg: "Reiniciando el sistema debido a actualizaciones."
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: uptime
