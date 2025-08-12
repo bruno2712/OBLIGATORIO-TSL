@@ -69,6 +69,5 @@ ansible-playbook -i inventory/inventory.ini playbooks/nfs_setup.yaml -K
 ``` 
 #### Playbook hardening
  ```bash
-ssh-keygen
-ssh-copy-id [ IP DEL SERVIDOR ]
+ansible-playbook -i inventory/inventory.ini playbooks/hardening.yaml -K
 ``` 
