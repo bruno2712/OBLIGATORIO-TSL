@@ -28,7 +28,13 @@
       community.general.ufw:
         rule: allow
         name: OpenSSH
-
+    - name: Asegurar SSH deshabilitando login de root
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin' # Recomendacion de Gemini
+        line: 'PermitRootLogin no'
+        state: present
+    
     - name: Activar protección SSH en Fail2ban
       ansible.builtin.copy:
         dest: /etc/fail2ban/jail.local
