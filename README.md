@@ -59,3 +59,16 @@ ssh-keygen
 ssh-copy-id [ IP DEL SERVIDOR ]
 ``` 
 
+## EJECUTAR PLAYBOOK'S
+
+Una vez terminada la configuracion para poder ejecutar los playbook vamos a ejecutar los siguientes comandos. En ambos casos va a solicitar contraseña para elevar permisos.
+
+#### Playbook NFS
+ ```bash
+ansible-playbook -i inventory/inventory.ini playbooks/nfs_setup.yaml -K
+``` 
+#### Playbook hardening
+ ```bash
+ssh-keygen
+ssh-copy-id [ IP DEL SERVIDOR ]
+``` 
